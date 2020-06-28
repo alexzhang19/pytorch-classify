@@ -1,0 +1,7 @@
+pytorch>=1.4
+torchvision>=0.5
+opencv-python
+visdom
+tqdm
+ipdb
+fire
