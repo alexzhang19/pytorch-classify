@@ -14,47 +14,67 @@ import torch.nn as nn
 __all__ = ["AlexNet"]
 
 
+import torch as t
+import torch.nn as nn
+
+
 class AlexNet(nn.Module):
-    def __init__(self, n_cls):
+    def __init__(self, num_classes):
         super(AlexNet, self).__init__()
-        self.features = nn.Sequential(
-            nn.Conv2d(3, 64, 11, 4, padding=2),
+
+        self.layer1 = nn.Sequential(
+            nn.Conv2d(3, 96, 11, 4, padding=2),
             nn.ReLU(inplace=True),
             nn.MaxPool2d(kernel_size=3, stride=2),
+        )
 
-            nn.Conv2d(64, 192, kernel_size=5, padding=2),
+        self.layer2 = nn.Sequential(
+            nn.Conv2d(96, 256, 5, 1, padding=2),
             nn.ReLU(inplace=True),
             nn.MaxPool2d(kernel_size=3, stride=2),
+        )
 
-            nn.Conv2d(192, 384, kernel_size=3, padding=1),
+        self.layer3 = nn.Sequential(
+            nn.Conv2d(256, 384, 3, 1, padding=1),
             nn.ReLU(inplace=True),
-            nn.Conv2d(384, 256, kernel_size=3, padding=1),
-            nn.ReLU(inplace=True),
+        )
 
-            nn.Conv2d(256, 256, kernel_size=3, padding=1),
+        self.layer4 = nn.Sequential(
+            nn.Conv2d(384, 384, 3, 1, padding=1),
             nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=3, stride=1)
+        )
+
+        self.layer5 = nn.Sequential(
+            nn.Conv2d(384, 256, 3, 2, padding=2),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=2, stride=2),
         )
 
         self.classifier = nn.Sequential(
-            nn.Dropout(),
-            nn.Linear(256 * 6 * 6, 4096),
+            nn.Dropout(0.5),
+            nn.Linear(256 * 4 * 4, 4096),
             nn.ReLU(inplace=True),
-            nn.Dropout(),
+            nn.Dropout(0.5),
             nn.Linear(4096, 4096),
             nn.ReLU(inplace=True),
-            nn.Linear(4096, n_cls)
+            nn.Linear(4096, num_classes)
         )
 
     def forward(self, x):
-        x = self.features(x)
+        x = self.layer1(x)
+        x = self.layer2(x)
+        x = self.layer3(x)
+        x = self.layer4(x)
+        x = self.layer5(x)
         x = x.view(x.size(0), -1)
-        return self.classifier(x)
+        x = self.classifier(x)
+        return x
 
 
 if __name__ == '__main__':
-    x = t.randn(1, 1, 32, 32)
-    model = AlexNet(10)
+    x = t.randn(1, 3, 224, 224)
+    model = AlexNet(1000)
+    y = model(x)
     print("model:", model)
-    print("y:", model(x))
+    print("y:", y.shape)
     pass
