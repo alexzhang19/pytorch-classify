@@ -14,10 +14,6 @@ import torch.nn as nn
 __all__ = ["AlexNet"]
 
 
-import torch as t
-import torch.nn as nn
-
-
 class AlexNet(nn.Module):
     def __init__(self, num_classes):
         super(AlexNet, self).__init__()
